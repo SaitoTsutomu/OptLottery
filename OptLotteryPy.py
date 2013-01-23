@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """
 Optimize Lottery
+http://pyyaml.org/wiki/PyYAML
 """
 import os, random, re, sys, yaml
 from subprocess import Popen, PIPE
