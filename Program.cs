@@ -16,7 +16,7 @@ namespace OptLottery
 {
 	//public enum EType { Single, Family }
 	public enum EGender { Male, Female, Both }
-	public enum ECondition { None, MaleOnly, FemaleOnly, NoMale, NoFemale, NoBoth }
+	public enum ECondition { Nothing, MaleOnly, FemaleOnly, NoMale, NoFemale, NoBoth }
 	public class Rental
 	{
 		public string Name { get; set; }
@@ -95,6 +95,7 @@ namespace OptLottery
 			var ys = new YamlSerializer();
 			var oo = ys.DeserializeFromFile(args.Length > 0 ? args[0]
 				: "data.txt", typeof(Rental[]), typeof(Bid[]));
+			ys.SerializeToFile("data0.txt", oo);
 			Solve((Rental[])oo[0], (Bid[])oo[1]);
 		}
 		private static void Solve(Rental[] rentals, Bid[] bids)
