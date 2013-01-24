@@ -37,6 +37,7 @@ class OptLottery:
 	def Do(dnam):
 		f = open(dnam)
 		dt = yaml.load_all(f)
+		f.close()
 		rentals = dt.next()
 		bids = dt.next()
 		vars = []
