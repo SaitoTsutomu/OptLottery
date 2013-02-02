@@ -22,6 +22,8 @@ namespace OptLottery
 		public string Name { get; set; }
 		public string Address { get; set; }
 		public decimal Size { get; set; }
+		public string[] Attrib { get { return _Attrib == null ? new string[0] : _Attrib.ToArray(); } set { _Attrib = new List<string>(value); } }
+		internal List<string> _Attrib;
 		public ECondition Condition { get; set; }
 		public int PremiumPrice { get; set; }
 		public int NormalPrice { get; set; }
@@ -50,8 +52,10 @@ namespace OptLottery
 	{
 		public string Name { get; set; }
 		public EGender Gender { get; set; }
+		public string[] Attrib { get { return _Attrib == null ? new string[0] : _Attrib.ToArray(); } set { _Attrib = new List<string>(value); } }
+		internal List<string> _Attrib;
 		public Wish[] Wishes { get { return _Wishes.ToArray(); } set { _Wishes = new List<Wish>(value); } }
-		internal List<Wish> _Wishes { get; set; }
+		internal List<Wish> _Wishes;
 		internal List<Var> Vars;
 		public Bid()
 		{
@@ -83,6 +87,15 @@ namespace OptLottery
 			Bid = bi;
 			Premium = pr;
 		}
+		public double AddVal()
+		{
+			double sum = 0;
+			var dic = new Dictionary<string, string>();
+			if (Rental.Attrib == null || Bid.Attrib == null) return 0;
+			foreach (var s in Rental.Attrib) dic[s] = null;
+			foreach (var s in Bid.Attrib) if (dic.ContainsKey(s)) ++sum;
+			return sum * 100000;
+		}
 		public override string ToString()
 		{
 			return string.Format("{0}/{1}/{2}/{3}", Rental.Name, Bid.Name, Premium, Price);
@@ -90,83 +103,10 @@ namespace OptLottery
 	}
 	class Program
 	{
+		[STAThread]
 		static void Main(string[] args)
 		{
-			var ys = new YamlSerializer();
-			var oo = ys.DeserializeFromFile(args.Length > 0 ? args[0]
-				: "data.txt", typeof(Rental[]), typeof(Bid[]));
-			ys.SerializeToFile("data0.txt", oo);
-			Solve((Rental[])oo[0], (Bid[])oo[1]);
-		}
-		private static void Solve(Rental[] rentals, Bid[] bids)
-		{
-			var vars = new List<Var>();
-			foreach (var bi in bids) foreach (var wi in bi.Wishes)
-					wi.Regex = new Regex(wi.Area, RegexOptions.Compiled);
-			foreach (var re in rentals)
-			{
-				foreach (var bi in bids)
-				{
-					var va = bi.Find(re);
-					if (va == null) continue;
-					vars.Add(va);
-					re.Vars.Add(va);
-					bi.Vars.Add(va);
-				}
-			}
-			for (int i = 0; i < vars.Count; ++i) vars[i].ID = i;
-			//foreach (var va in vars) Console.WriteLine(va);
-			var mnam = "model.txt";
-			using (var sw = new StreamWriter(mnam, false, Encoding.GetEncoding(932)))
-			{
-				sw.WriteLine("maximize");
-				sw.Write("obj:");
-				var rnd = new Random();
-				foreach (var va in vars)
-				{
-					var co = va.Price + rnd.NextDouble();
-					sw.Write(" + {0} v{1}", co, va.ID);
-				}
-				sw.WriteLine();
-				sw.WriteLine("subject to");
-				int cnt = 0;
-				foreach (var re in rentals)
-				{
-					if (re.Vars.Count == 0) continue;
-					sw.Write("r{0}:", cnt++);
-					foreach (var va in re.Vars) sw.Write(" + v{0}", va.ID);
-					sw.WriteLine(" <= 1");
-				}
-				foreach (var bi in bids)
-				{
-					if (bi.Vars.Count == 0) continue;
-					sw.Write("b{0}:", cnt++);
-					foreach (var va in bi.Vars) sw.Write(" + v{0}", va.ID);
-					sw.WriteLine(" <= 1");
-				}
-				sw.WriteLine("binary");
-				foreach (var va in vars) sw.WriteLine("v{0}", va.ID);
-				sw.WriteLine("end");
-			}
-			var proc = new Process();
-			proc.StartInfo.FileName = "symphony";
-			proc.StartInfo.RedirectStandardOutput = true;
-			proc.StartInfo.UseShellExecute = false;
-			proc.StartInfo.Arguments = "-L " + mnam;
-			proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-			proc.Start();
-			var res = proc.StandardOutput.ReadToEnd();
-			proc.WaitForExit();
-			var pos = res.LastIndexOf("+++");
-			if (pos < 0) return;
-			var m = Regex.Match(res.Substring(pos + 3), "v([0-d]+)\\s+[0-9.]+");
-			while (m.Success)
-			{
-				int i = int.Parse(m.Groups[1].Value);
-				var va = vars[i];
-				Console.WriteLine("{0} {1} {2}", va.Rental.Name, va.Bid.Name, va.Price);
-				m = m.NextMatch();
-			}
+			new MainForm().ShowDialog();
 		}
 	}
 }

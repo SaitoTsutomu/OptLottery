@@ -1,6 +1,7 @@
-- !Rental
+﻿- !Rental
   Name: トキワ荘
   Address: 東京都港区
+  Attrib: [庭掃除, 食事あり]
   Size: 20
   Condition: Nothing
   PremiumPrice: 12000
@@ -8,14 +9,16 @@
 - !Rental
   Name: 一刻館
   Address: 東京都新宿区
+  Attrib: [食事なし]
   Size: 20
   Condition: Nothing
   PremiumPrice: 21000
   NormalPrice: 17000
 ---
 - !Bid
-  Name: ABC
+  Name: 田中
   Gender: Both
+  Attrib: []
   Wishes: 
     - !Wish
       Area: 東京都\\*
@@ -23,11 +26,12 @@
       MaxPrice: 21000
       Premium: True
 - !Bid
-  Name: DEF
+  Name: 鈴木
   Gender: Female
+  Attrib: []
   Wishes: 
     - !Wish
-      Area: 東京都港区
+      Area: 東京都
       MinSize: 0
-      MaxPrice: 10000
+      MaxPrice: 20000
       Premium: True
